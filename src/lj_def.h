@@ -106,7 +106,6 @@ typedef uintptr_t BloomFilter;
 ** indirect calls and related tail-called C functions are marked as fastcall.
 */
 
-#define LJ_LIKELY(x)	__builtin_expect(!!(x), 1)
 #define LJ_UNLIKELY(x)	__builtin_expect(!!(x), 0)
 
 #define lj_ffs(x)	((uint32_t)__builtin_ctz(x))
