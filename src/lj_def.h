@@ -187,6 +187,8 @@ static LJ_AINLINE uint32_t lj_getu32(const void *p)
 #endif
 #ifndef LJ_LIKELY
 #define LJ_LIKELY(x)	(x)
+#endif
+#ifndef LJ_UNLIKELY
 #define LJ_UNLIKELY(x)	(x)
 #endif
 
