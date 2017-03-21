@@ -16,7 +16,7 @@
 typedef uint16_t HotCount;
 
 /* Number of hot counter hash table entries (must be a power of two). */
-#define HOTCOUNT_SIZE		64
+#define HOTCOUNT_SIZE		256
 #define HOTCOUNT_PCMASK		((HOTCOUNT_SIZE-1)*sizeof(HotCount))
 
 /* Hotcount decrements. */
