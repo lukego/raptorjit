@@ -100,7 +100,7 @@ static LJ_AINLINE void lj_gc_barrierback(global_State *g, GCtab *t)
 
 /* Allocator. */
 LJ_FUNC void *lj_mem_realloc(lua_State *L, void *p, GCSize osz, GCSize nsz);
-LJ_FUNC void * lj_mem_newgco(lua_State *L, GCSize size);
+LJ_FUNC void * lj_mem_newgco(lua_State *L, int64_t size);
 LJ_FUNC void *lj_mem_grow(lua_State *L, void *p,
 			  MSize *szp, MSize lim, MSize esz);
 

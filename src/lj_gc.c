@@ -790,14 +790,16 @@ void *lj_mem_realloc(lua_State *L, void *p, GCSize osz, GCSize nsz)
 }
 
 /* Allocate new GC object and link it to the root set. */
-void * lj_mem_newgco(lua_State *L, GCSize size)
+void * lj_mem_newgco(lua_State *L, int64_t size)
 {
   global_State *g = G(L);
-  GCobj *o = (GCobj *)g->allocf(g->allocd, NULL, 0, size);
+  int rand = size > 0 ? 0 : __builtin_ia32_rdtsc() % 64;
+  size = size > 0 ? size : -size;
+  GCobj *o = (GCobj *)(rand + g->allocf(g->allocd, NULL, 0, size + rand));
   if (o == NULL)
     lj_err_mem(L);
   lua_assert(checkptrGC(o));
-  g->gc.total += size;
+  g->gc.total += size+rand;
   setgcrefr(o->gch.nextgc, g->gc.root);
   setgcref(g->gc.root, o);
   newwhite(g, o);
