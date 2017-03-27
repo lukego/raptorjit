@@ -3900,6 +3900,11 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
     |  jmp ->vm_returnc
     break;
 
+  case BC_HOTC:
+    |  ins_A
+    |  ins_next
+    break;
+
   /* ---------------------------------------------------------------------- */
 
   default:

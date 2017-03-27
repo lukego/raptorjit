@@ -2352,6 +2352,7 @@ static void parse_while(LexState *ls, BCLine line)
   condexit = expr_cond(ls);
   fscope_begin(fs, &bl, FSCOPE_LOOP);
   lex_check(ls, TK_do);
+  bcemit_ABC(fs, BC_HOTC, 42, 42, 0);
   loop = bcemit_AD(fs, BC_LOOP, fs->nactvar, 0);
   parse_block(ls);
   jmp_patch(fs, bcemit_jmp(fs), start);
