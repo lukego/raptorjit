@@ -9,6 +9,7 @@
 #include "lj_obj.h"
 
 
+#include "lj_auditlog.h"
 #include "lj_gc.h"
 #include "lj_err.h"
 #include "lj_debug.h"
@@ -28,6 +29,7 @@
 #include "lj_dispatch.h"
 #include "lj_vm.h"
 #include "lj_target.h"
+#include "lj_auditlog.h"
 
 /* -- Error handling ------------------------------------------------------ */
 
@@ -36,6 +38,7 @@ void lj_trace_err(jit_State *J, TraceError e)
 {
   setnilV(&J->errinfo);  /* No error info. */
   setintV(J->L->top++, (int32_t)e);
+  lj_auditlog_trace_abort(J, e);
   lj_err_throw(J->L, LUA_ERRRUN);
 }
 
@@ -43,6 +46,7 @@ void lj_trace_err(jit_State *J, TraceError e)
 void lj_trace_err_info(jit_State *J, TraceError e)
 {
   setintV(J->L->top++, (int32_t)e);
+  lj_auditlog_trace_abort(J, e);
   lj_err_throw(J->L, LUA_ERRRUN);
 }
 
@@ -122,6 +126,7 @@ static void trace_save(jit_State *J, GCtrace *T)
   setgcrefp(J->trace[T->traceno], T);
   lj_gc_barriertrace(J2G(J), T->traceno);
   lj_gdbjit_addtrace(J, T);
+  lj_auditlog_trace_stop(J, T);
 }
 
 void lj_trace_free(global_State *g, GCtrace *T)
@@ -508,6 +513,7 @@ static int trace_abort(jit_State *J)
     J->cur.traceno = 0;
   }
   L->top--;  /* Remove error object */
+  lj_auditlog_trace_abort(J, e);
   if (e == LJ_TRERR_DOWNREC)
     return trace_downrec(J);
   else if (e == LJ_TRERR_MCODEAL)
