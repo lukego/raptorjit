@@ -3,6 +3,7 @@
 suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
+  library(sfsmisc)
 })
 
 ## R library routines for analyzing benchmark results
@@ -47,3 +48,31 @@ bench.ecdfplot <- function(data) {
   facet_wrap(~ benchmark)
 }
 
+bench.significance <- function(d) {
+    f <- function(data) {
+        n <- length(data)
+        D <- KSd(n)
+        ec <- ecdf(data)
+        x <- get("x", envir = environment(ec))
+        y <- get("y", envir = environment(ec))
+        tibble(x = x,
+               ymax = pmin(y+D, 1),
+               ymin = pmax(y-D, 0))
+    }
+
+    data <- tibble()
+    for (v in levels(as.factor(d$version))) {
+        new <- f(filter(d, version == v)$cycles)
+        new$version <- v
+        data <- rbind(data, new)
+    }
+    ggplot(data = data) +
+        geom_ribbon(aes(x=x, ymin=ymin, ymax=ymax, color=version, fill=version),
+                       alpha=0.25) +
+        scale_x_continuous(labels = scales::comma) +
+        scale_y_continuous(labels = scales::percent) +
+        labs(y = "% benchmarks completed",
+             x = "elapsed time (cycles)",
+             title = "Branch-wise RaptorJIT benchmark CDF",
+             subtitle = "95% confidence band for Cumulative Distribution Function (CDF) based on Kolmogorov-Smirnov statistic")
+}

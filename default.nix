@@ -7,12 +7,13 @@
 #
 # See README.md for usage instructions.
 
-{ pkgs ? (import ./pkgs.nix) {}
+{ nixpkgs ? (import ./pkgs.nix)
 , source ? pkgs.lib.cleanSource ./.
 , version ? "dev"
 , check ? false }:
 
 let
+  pkgs = import nixpkgs {};
   callPackage = (pkgs.lib.callPackageWith { inherit pkgs source version; });
   raptorjit = (callPackage ./raptorjit.nix {});
   test = name: args: (callPackage ./test.nix { inherit raptorjit name args; });

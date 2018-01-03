@@ -23,3 +23,8 @@ ggsave(filename = file.path(outdir,"bench-jitter.png"),
 ggsave(filename = file.path(outdir,"bench-ecdf.png"),
        plot = bench.ecdfplot(data),
        width=12, height=12)
+
+ggsave(filename = file.path(outdir, "bench-summary.png"),
+       plot = bench.significance(data),
+       width = 12, height = 12)
+                            

@@ -1,6 +1,6 @@
 # Run a large parallel benchmark campaign and generate R/ggplot2 reports.
 
-{ pkgs ? (import ../../pkgs.nix) {},
+{ nixpkgs ? (import ../../nixpkgs.nix),
   Asrc,        Aname ? "A", Aargs ? "",
   Bsrc ? null, Bname ? "B", Bargs ? "",
   Csrc ? null, Cname ? "C", Cargs ? "",
@@ -8,6 +8,8 @@
   Esrc ? null, Ename ? "E", Eargs ? "",
   hardware ? null,
   runs ? 30 }:
+
+let pkgs = import nixpkgs {}; in
 
 with pkgs;
 with stdenv;
@@ -17,7 +19,7 @@ let benchmark = letter: name: src: args: run:
   let raptorjit = (import src {inherit pkgs; version = name;}).raptorjit; in
   mkDerivation {
     name = "benchmark-${name}-${toString run}";
-    src = pkgs.lib.cleanSource ./.;
+    src = pkgs.lib.sourceFilesBySuffices ./. [ ".lua" ".txt" ];
     # Force consistent hardware
     requiredSystemFeatures = if hardware != null then [hardware] else [];
     buildInputs = [ raptorjit linuxPackages.perf utillinux ];
@@ -79,7 +81,7 @@ in
 rec {
   benchmarkResults = mkDerivation {
     name = "benchmark-results";
-    buildInputs = with pkgs.rPackages; [ pkgs.R ggplot2 dplyr ];
+    buildInputs = with pkgs.rPackages; [ pkgs.R ggplot2 dplyr sfsmisc ];
     builder = pkgs.writeText "builder.csv" ''
       source $stdenv/setup
       # Get the CSV file
