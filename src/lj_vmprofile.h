@@ -19,7 +19,8 @@ typedef uint64_t VMProfileCount;
 /* Complete set of counters for VM and traces. */
 typedef struct VMProfile {
   uint32_t magic;               /* 0x1d50f007 */
-  uint16_t major, minor;        /* 4, 0 */
+  uint16_t major, minor;        /* 5, 0 */
+  uint64_t generation;          /* Generation of first dataset. */
   /* Profile counters are stored in a 2D matrix of count[trace][state].
   **
   ** The profiler attempts to attribute each sample to one vmstate and
@@ -28,7 +29,11 @@ typedef struct VMProfile {
   ** counter for all higher-numbered traces and for samples that can't
   ** be attributed to a specific trace at all.)
   **/
-  VMProfileCount count[LJ_VMPROFILE_TRACE_MAX+1][LJ_VMST__MAX];
+  struct {
+    uint64_t generation;        /* JIT generation (flushes) */
+    uint64_t reserved;          /* For future use */
+    VMProfileCount count[LJ_VMPROFILE_TRACE_MAX+1][LJ_VMST__MAX];
+  } datasets[5];
 } VMProfile;
 
 /* Functions that should be accessed via FFI. */

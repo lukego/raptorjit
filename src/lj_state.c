@@ -226,6 +226,7 @@ LUA_API lua_State *lua_newstate(lua_Alloc f, void *ud)
     return NULL;
   lj_dispatch_init((GG_State *)L);
   L->status = LUA_ERRERR+1;  /* Avoid touching the stack upon memory error. */
+  J->generation = 1;
   if (lj_vm_cpcall(L, NULL, NULL, cpluaopen) != 0) {
     /* Memory allocation error: free partial state. */
     close_state(L);

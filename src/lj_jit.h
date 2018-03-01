@@ -398,6 +398,8 @@ typedef struct jit_State {
 
   TValue errinfo;	/* Additional info element for trace errors. */
   int8_t final;		/* True if trace error is final. */
+
+  uint64_t generation;	/* Generation number (increment on flushall). */
 }
 jit_State;
 

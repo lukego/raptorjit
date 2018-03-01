@@ -44,6 +44,16 @@ static void vmprofile_signal(int sig, siginfo_t *si, void *data)
   if (profile != NULL) {
     int vmstate, trace;     /* sample matrix indices */
     lua_State *L = gco2th(gcref(state.g->cur_L));
+    jit_State *J = L2J(L);
+    /* Ensure vmprofile generations align with JIT generations */
+    while (profile->generation < J->generation) {
+      /* Shift out older data. */
+      memmove(&profile->datasets[1], &profile->datasets[0],
+              sizeof(profile->datasets) - sizeof(profile->datasets[0]));
+      /* Initialize current generation. */
+      memset(&profile->datasets[0], 0, sizeof(profile->datasets[0]));
+      profile->generation++;
+    }
     /*
      * The basic job of this function is to select the right indices
      * into the profile counter matrix. That requires deciding which
@@ -78,7 +88,7 @@ static void vmprofile_signal(int sig, siginfo_t *si, void *data)
     /* Phew! We have calculated the indices and now we can bump the counter. */
     lua_assert(vmstate >= 0 && vmstate <= LJ_VMST__MAX);
     lua_assert(trace >= 0 && trace <= LJ_VMPROFILE_TRACE_MAX);
-    profile->count[trace][vmstate]++;
+    profile->datasets[0].count[trace][vmstate]++;
   }
 }
 
@@ -131,7 +141,7 @@ void *vmprofile_open_file(const char *filename)
 void vmprofile_set_profile(void *counters) {
   profile = (VMProfile*)counters;
   profile->magic = 0x1d50f007;
-  profile->major = 4;
+  profile->major = 5;
   profile->minor = 0;
 }
 

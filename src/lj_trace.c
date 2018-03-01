@@ -253,6 +253,7 @@ int lj_trace_flushall(lua_State *L)
       setgcrefnull(J->trace[i]);
     }
   }
+  J->generation++;
   J->cur.traceno = 0;
   J->freetrace = 0;
   g->lasttrace = 0;
